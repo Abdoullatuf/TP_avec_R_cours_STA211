@@ -1,0 +1,28 @@
+---
+title: "TP1_pretraitement_et_exploration"
+format: html
+---
+
+# Installation des packages:
+```{r}
+install.packages(c("micemd","FactoMineR","parallel","DescTools",
+                   "VIM","mice", "mvtnorm", "funModeling","randomForest"))
+```
+
+```{r}
+#"pacman" permet de vérifier et installer des pckages de façon automatiques 
+if (!require(pacman)) install.packages("pacman")
+library(pacman)
+re
+p_load(devtools, dplyr, ggplot2, data.table, rmarkdown, shiny)
+library(devtools)
+
+```
+
+
+```{r}
+rm(list=ls())
+
+```
+
+
