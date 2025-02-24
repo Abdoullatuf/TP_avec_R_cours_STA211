@@ -4,19 +4,87 @@ format: html
 ---
 
 # Installation des packages:
-```{r}
-install.packages(c("micemd","FactoMineR","parallel","DescTools",
-                   "VIM","mice", "mvtnorm", "funModeling","randomForest"))
-```
 
 ```{r}
 #"pacman" permet de vérifier et installer des pckages de façon automatiques 
 if (!require(pacman)) install.packages("pacman")
 library(pacman)
-re
-p_load(devtools, dplyr, ggplot2, data.table, rmarkdown, shiny)
-library(devtools)
+p_load(corrplot, mice, FactoMineR, parallel, DescTools, VIM, mvtnorm, funModeling, randomForest)
 
+```
+
+```{r}
+library(mice)
+library(micemd)
+library(FactoMineR)
+library(parallel)
+library(DescTools)
+library(VIM)
+library(mvtnorm)
+library(funModeling)
+
+library(corrplot)
+```
+
+#Importation des données
+
+```{r}
+load("diabetes.Rdata")
+```
+
+# Analyse exploratoire
+
+## 1. Exploration du lien entre les variables explicatives d’une part et entre la variable réponse et les variables explicatives d’autre part.
+
+```{r}
+dim(diabetes)
+summary(diabetes)
+```
+```{r}
+pairs(diabetes[, 1:8], cex = .2)
+matcor <- cor(diabetes[, 1:8], use = "pairwise.complete.obs")
+PlotCorr(matcor)
+```
+```{r}
+# Afficher la matrice de corrélation avec les valeurs
+corrplot(matcor, method = "number")
+
+```
+```{r}
+boxplot(diabetes[,"Age"]~diabetes$Outcome)
+
+```
+```{r}
+par(mfrow = c(3, 3))
+sapply(colnames(diabetes)[1:8],
+       FUN = function(xx, diabetes){
+         boxplot(diabetes[,xx]~diabetes$Outcome,
+                 main = xx,
+                 ylab = xx,
+                 xlab = "outcome")
+         }
+       , diabetes = diabetes)
+```
+## 2. Explorer le dispositif des données manquantes. On pourra utiliser la fonction aggr du package VIM pour l’analyse univariée, CramerV du package DescTools pour l’analyse bivariée, MCA du package FactoMineR pour l’analyse multidimensionnelle.
+```{r}
+# dispositif des données manquantes
+is.na(diabetes)
+
+# analyse univariée
+res.aggr <- aggr(diabetes)
+str(res.aggr)
+res.aggr$missings
+cbind(res.aggr$tabcomb, res.aggr$percent)
+
+# analyse bivariée
+var.na <- which(res.aggr$missing$Count>0)
+names(var.na) <- colnames(diabetes)[var.na]
+pattern <- is.na(diabetes[, var.na])
+matcram <- PairApply(pattern, CramerV)
+PlotCorr(matcram)
+
+# analyse multivariée
+MCA(pattern)
 ```
 
 
@@ -24,5 +92,3 @@ library(devtools)
 rm(list=ls())
 
 ```
-
-
